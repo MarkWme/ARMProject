@@ -1,0 +1,178 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "environment": {
+            "type": "string",
+            "allowedValues": [
+                "Test",
+                "Development",
+                "Production"
+            ],
+            "defaultValue": "Test"
+        },
+        "location" : {
+            "type": "string",
+            "allowedValues": [
+                "dec",
+                "den",
+                "euw",
+                "eun",
+                "uks",
+                "ukw"
+            ]
+        },
+        "projectName" : {
+            "type": "string"
+        },
+        "virtualNetworkAddressRange" : {
+            "type": "string",
+            "defaultValue": "10.0.0.0/16"
+        },
+        "subnetAddressRange" : {
+            "type": "string",
+            "defaultValue": "10.0.1.0/24"
+        }
+    },
+    "variables": {
+        "resourceNaming" : {
+            "virtualNetwork" : "vnt",
+            "subNet" : "snt",
+            "storageAccount" : "sta",
+            "virtualMachineLinux" : "vml",
+            "virtualMachineWindows" : "vmw",
+            "virtualHardDrive" : "vhd",
+            "networkInterface" : "nic",
+            "ipv4Address" : "ip4"
+        },
+        "environmentCode" : "[toLower(substring(parameters('environment'),0,1))]",
+        "storageAccountName" : "[concat(variables('environmentCode'), variables('resourceNaming').storageAccount, parameters('location'), replace(parameters('projectName'),'-',''))]",
+        "virtualNetworkName" : "[concat(variables('environmentCode'), '-', variables('resourceNaming').virtualNetwork, '-', parameters('location'), '-', parameters('projectName'))]",
+        "subnetName" :"[concat(variables('environmentCode'), '-', variables('resourceNaming').subNet, '-', parameters('location'), '-', parameters('projectName'),'-01')]",
+        "nicName" : "[concat(variables('environmentCode'), '-', variables('resourceNaming').networkInterface, '-', parameters('location'), '-', parameters('projectName'))]",
+        "ipName" : "[concat(variables('environmentCode'), '-', variables('resourceNaming').ipv4Address, '-', parameters('location'), '-', parameters('projectName'))]",
+        "vmName" : "[concat(variables('environmentCode'), '-', variables('resourceNaming').virtualMachineWindows, '-', parameters('location'), '-', parameters('projectName'))]",
+        "vmHostName" : "[take(concat(variables('environmentCode'), variables('resourceNaming').virtualMachineWindows, parameters('location'), replace(parameters('projectName'),'-','')),15)]",
+        "vhdName" : "[concat(variables('environmentCode'), '-', variables('resourceNaming').virtualHardDrive, '-', parameters('location'), '-', parameters('projectName'),'-01')]"
+    },
+    "resources": [
+        //
+        // Virtual machines require a network and storage. So, first we create a storage account
+        // in which our virtual machines virtual hard drive (vhd) will reside.
+        //
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2015-06-15",
+            "name": "[variables('storageAccountName')]",
+            "properties": {
+                "accountType": "Standard_LRS"
+            },
+            "location": "[resourceGroup().location]"
+        },
+        //
+        // The virtual machine contains a network interface, which needs to be connected to a
+        // subnet, which in turn is part of a virtual network.  So, next we create the virtual
+        // network and its subnets.
+        //
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2016-03-30",
+            "name" : "[variables('virtualNetworkName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "addressSpace": 
+                {
+                    "addressPrefixes": [
+                        "[parameters('virtualNetworkAddressRange')]"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name" : "[variables('subnetName')]",
+                        "properties": {
+                            "addressPrefix": "[parameters('subnetAddressRange')]"
+                        }
+                    }
+                ]
+            }
+        },
+        //
+        // And now we can create the network interface and connect it to the
+        // subnet that we just created.
+        //
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2016-03-30",
+            "name": "[variables('nicName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "ipConfigurations": 
+                [
+                    {
+                        "name": "[variables('ipName')]",
+                        "properties": {
+                            "subnet": {
+                                "id": "[concat(resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName')), concat('/subnets/', variables('subnetName')))]"
+                            },
+                            "privateIPAllocationMethod": "Dynamic"
+                        }
+                    }
+                ]
+            },
+            "dependsOn": [
+                "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
+            ]
+        },
+        //
+        // Finally, with the storage account, virtual network, subnets and network
+        // interface created, we can create the virtual machine.
+        //
+        {
+            "type" : "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2015-06-15",
+            "name": "[variables('vmName')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkInterfaces/', variables('nicName'))]",
+                "[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]"
+            ],
+            "properties": {
+                "storageProfile": 
+                {
+                    "imageReference": 
+                    {
+                        "publisher": "MicrosoftWindowsServer",
+                        "offer": "WindowsServer",
+                        "sku": "2016-Nano-Server",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "name": "[variables('vhdName')]",
+                        "createOption": "FromImage",
+                        "vhd": {
+                            "uri": "[concat('https://',variables('storageAccountName'),'.blob.core.windows.net/vhds/','osdisk', '.vhd')]"
+                        }
+                    }
+                },
+                "osProfile": 
+                {
+                    "computerName": "[variables('vmHostName')]",
+                    "adminPassword": "T0pS3cretPa$$word",
+                    "adminUsername": "TheDonald"
+                },
+                "hardwareProfile":
+                {
+                    "vmSize": "Standard_D1"
+                },
+                "networkProfile": 
+                {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

@@ -1,0 +1,124 @@
+{
+    //
+    // This sample Azure Resoure Manager (ARM) template demonstrates how to create
+    // a single instance of a virtual machine.
+    //
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "resources": [
+        //
+        // Virtual machines require a network and storage. So, first we create a storage account
+        // in which our virtual machines virtual hard drive (vhd) will reside.
+        //
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2015-06-15",
+            "name": "mtjw161104",
+            "properties": {
+                "accountType": "Standard_LRS"
+            },
+            "location": "North Europe"
+        },
+        //
+        // The virtual machine contains a network interface, which needs to be connected to a
+        // subnet, which in turn is part of a virtual network.  So, next we create the virtual
+        // network and its subnets.
+        //
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2016-03-30",
+            "name" : "mtjw-vnet-161110",
+            "location": "North Europe",
+            "properties": {
+                "addressSpace": 
+                {
+                    "addressPrefixes": [
+                        "10.0.0.0/16"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name" : "mtjw-sub-161110",
+                        "properties": {
+                            "addressPrefix": "10.0.0.0/24"
+                        }
+                    }
+                ]
+            }
+        },
+        //
+        // And now we can create the network interface and connect it to the
+        // subnet that we just created.
+        //
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2016-03-30",
+            "name": "mtjw-net-161110",
+            "location": "North Europe",
+            "properties": {
+                "ipConfigurations": 
+                [
+                    {
+                        "name": "mtjw-ip-161110",
+                        "properties": {
+                            "subnet": {
+                                "id": "[concat(resourceId('Microsoft.Network/virtualNetworks', 'mtjw-vnet-161110'),'/subnets/mtjw-sub-161110')]"
+                            },
+                            "privateIPAllocationMethod": "Dynamic"
+                        }
+                    }
+                ]
+            }
+        },
+        //
+        // Finally, with the storage account, virtual network, subnets and network
+        // interface created, we can create the virtual machine.
+        //
+        {
+            "type" : "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2015-06-15",
+            "name": "mtjw-vm-161104",
+            "location": "North Europe",
+            "dependsOn": [
+                "Microsoft.Network/networkInterfaces/mtjw-net-161110"
+            ],
+            "properties": {
+                "storageProfile": 
+                {
+                    "imageReference": 
+                    {
+                        "publisher": "MicrosoftWindowsServer",
+                        "offer": "WindowsServer",
+                        "sku": "2016-Nano-Server",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "name": "mtjw-vm-161104-vhd",
+                        "createOption": "FromImage",
+                        "vhd": {
+                            "uri": "https://mtjw161104.blob.core.windows.net/vhds/WindowsVM1-OSDisk.vhd"
+                        }
+                    }
+                },
+                "osProfile": 
+                {
+                    "computerName": "mtjw-vm-161104",
+                    "adminPassword": "T0pS3cretPa$$word",
+                    "adminUsername": "TheDonald"
+                },
+                "hardwareProfile":
+                {
+                    "vmSize": "Standard_D1"
+                },
+                "networkProfile": 
+                {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', 'mtjw-net-161110')]"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}
