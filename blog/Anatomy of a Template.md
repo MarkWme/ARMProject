@@ -15,7 +15,7 @@ Granted, the above doesn't do anything, but without these lines your ARM templat
 
 ### Schema
 
->       "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+        "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
 
 
 The first line contains a key / value pair with a special purpose. It specifies the [JSON Schema](http://json-schema.org/) for an ARM Template. The schema defines what your ARM template should look like, what things it should contain. The schema can be used to validate a template file. The schema is itself a plain text, JSON format file. If you're interested, just paste **http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#** into a web browser and you can browse through the definition of an ARM template for yourself. In fact, you know we said that the above lines were the minimum required for a valid template, well if you do browse the schema file you'll eventually find ...
@@ -30,15 +30,15 @@ The first line contains a key / value pair with a special purpose. It specifies 
 
 ### Content Version
 
->       "contentVersion": "1.0.0.0",
+        "contentVersion": "1.0.0.0",
 
 The second line defines a version number for this template. It **has** to be made up of four numbers, seperated by dots, as shown. The version numbering system used is up to you, but it makes good sense to figure something out that makes sense to you. For example, you could use a year, month, day and version
 
->       "contentVersion": "2017.01.06.001"
+        "contentVersion": "2017.01.06.001"
 
 ### Resources
 
->       "resources": [
->        ]
+        "resources": [
+        ]
 
-The third line is where all the action is. The resources section is where you list all of the things you're going to deploy. As you can see it defaults to an empty array, but as you build out your template you'll quickly have many items listed here
+The third line is where all the action is. The resources section is where you list all of the things you're going to deploy. As you can see it defaults to an empty array, but as you build out your template you'll quickly have many items listed here.
