@@ -1,4 +1,4 @@
-# The No Faff Guide to Azure Resource Manager
+# The Faff-Free Guide to Azure Resource Manager
 
 ## Creating and Editing Templates with Visual Studio Code
 

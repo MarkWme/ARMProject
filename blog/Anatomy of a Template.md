@@ -1,4 +1,4 @@
-# The No Faff Guide to Azure Resource Manager
+# The Faff-Free Guide to Azure Resource Manager
 
 ## Anatomy of a Template
 
