@@ -1,6 +1,6 @@
 # The No Faff Guide to Azure Resource Manager
 
-## Creating and Editing Templates with Visual Studio
+## Creating and Editing Templates with Visual Studio Code
 
 Azure Resource Manager (ARM) templates are plain text files and can be created or edited in any text editor. I recommend [Visual Studio Code](https://code.visualstudio.com/) as the best tool for template creation and editing. There are a lot of choices when it comes to text editors, but I like **Code** because it's quick and easy to install, it has a large and growing library of high quality extensions and it's under active development with new features and refinements being added every month. On top of that, Code works on Windows, macOS or Linux and it's [open source](https://github.com/Microsoft/vscode).
 
@@ -37,10 +37,14 @@ At this point, simply press the tab key on your keyboard and Code will auto-comp
         "$schema":
     }
 
-Now, Code's good but here you have to give it a little clue as to which JSON schema you want to use.  Complete the line by adding the reference to the Azure Resource Manager schema.
+Now, Code is a good tool, but here you have to give it a little clue as to which JSON schema you want to use.  Complete the line by adding the reference to the Azure Resource Manager schema.
 
     {
         "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#"
     }
 
-If you look at your Problems panel now, it should now be telling you that there's something wrong with your template. Specifically that it's missing two properties - `contentVersion` and `resources`. Visual Studio Code [understands JSON schemas natively](https://code.visualstudio.com/Docs/languages/json#_json-schemas-settings), so as you type it's reviewing the schema that you've referenced and validating your JSON document against that schema.  In this case, it's detected that the ARM deployment template schema specifies that `$schema`, `contentVersion` and `resources` must all be present for a template to be valid.
+If you look at your Problems panel now, it should now be telling you that there's something wrong with your template. Specifically that it's missing two properties - `contentVersion` and `resources`. 
+
+(image of Code's Problem panel)
+
+Visual Studio Code [understands JSON schemas natively](https://code.visualstudio.com/Docs/languages/json#_json-schemas-settings), so as you type it's reviewing the schema that you've referenced and validating your JSON document against that schema.  In this case, it's detected that the ARM deployment template schema specifies that `$schema`, `contentVersion` and `resources` must all be present for a template to be valid.
