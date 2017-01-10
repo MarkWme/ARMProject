@@ -1,0 +1,1 @@
+Quick overview of the format of a JSON file, objects, arrays, separating with commas etc.
