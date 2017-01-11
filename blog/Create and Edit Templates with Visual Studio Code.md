@@ -45,6 +45,27 @@ Now, Code is a good tool, but here you have to give it a little clue as to which
 
 If you look at your Problems panel now, it should now be telling you that there's something wrong with your template. Specifically that it's missing two properties - `contentVersion` and `resources`. 
 
-(image of Code's Problem panel)
+![Visual Studio Code's Problem panel shows missing properties in an Azure Resource Manager template](images/vscodeProblemPanelEmptyTemplate.png)
 
-Visual Studio Code [understands JSON schemas natively](https://code.visualstudio.com/Docs/languages/json#_json-schemas-settings), so as you type it's reviewing the schema that you've referenced and validating your JSON document against that schema.  In this case, it's detected that the ARM deployment template schema specifies that `$schema`, `contentVersion` and `resources` must all be present for a template to be valid.
+Code [understands JSON schema defintions](https://code.visualstudio.com/Docs/languages/json#_json-schemas-settings), so as you type it's reviewing the schema you've referenced and is validating your JSON document against that schema.  In this case, it's detected that the ARM deployment template schema specifies that `$schema`, `contentVersion` and `resources` must all be present for a template to be valid. So, let's add those to the template.
+
+When there are multiple items within a JSON object or array, they are separated with commas. So, begin by adding a comma right at the end of the `$schema` line and then press enter. Code should line the cursor up right underneath the schema line. Next, type the first quote and Code will now pop up a list of possible properties.
+
+![Visual Studio Code Intellisense displays a list of properties](images/vscodeContentVersionPopUp.png)
+
+Here we see that Code is suggesting five possible properties that we might want to insert. You can see the three mandatory properties that we've previously discussed as well as two optional properties. Let's start with `contentVersion`. As it's already highlighted, just press the tab key and Code will add the property along with the colons and quotes needed.
+
+    {
+        "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+        "contentVersion": ""
+    }
+
+Good, but what value do we place inbetween the quotes for the `contentVersion`? Code, and the template schema, can help us again.  At this point, if you check your Problems panel, it will tell you what value it is expecting to find.
+
+    'String does not match the pattern of "(^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$)"'
+
+That's useful, but what if you're not great at reading [Regular Expressions](https://msdn.microsoft.com/en-us/library/az24scfc(v=vs.110).aspx)? Well in that case you can simply hover your mouse cursor over the pair of quotes to the right of `contentVersion` and Code will help you out.
+
+![Visual Studio Code displays help for completing the contentVersion property](images/vscodeContentVersionHelp.png)
+
+It repeats the warning we saw in the Problem panel but *also* it displays helpful information that it's found in the schema. In this case, it's telling us we need 4 numbers here, for example 1.0.0.0.
