@@ -9,7 +9,7 @@ Code isn't just a text editor, it's a development environment. Because of this, 
 ### Installing Visual Studio Code
 (install code on Surface Pro, record first time install experience)
 
-### Installing Extensions for Azure Resource Manager
+### Installing Visual Studio Code Extensions for Azure Resource Manager
 
 (do you need anything in particular for Code to read JSON schema?)
 (What does the ARM extension do specifically?)
@@ -53,6 +53,8 @@ When there are multiple items within a JSON object or array, they are separated 
 
 ![Visual Studio Code Intellisense displays a list of properties](images/vscodeContentVersionPopUp.png)
 
+*Note* - if Code doesn't display the list, press CTRL + SPACE to manually reveal it.
+
 Here we see that Code is suggesting five possible properties that we might want to insert. You can see the three mandatory properties that we've previously discussed as well as two optional properties. Let's start with `contentVersion`. As it's already highlighted, just press the tab key and Code will add the property along with the colons and quotes needed.
 
     {
@@ -64,8 +66,79 @@ Good, but what value do we place inbetween the quotes for the `contentVersion`? 
 
     'String does not match the pattern of "(^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$)"'
 
-That's useful, but what if you're not great at reading [Regular Expressions](https://msdn.microsoft.com/en-us/library/az24scfc(v=vs.110).aspx)? Well in that case you can simply hover your mouse cursor over the pair of quotes to the right of `contentVersion` and Code will help you out.
+That's useful, but what if you're not great at reading [regular expressions](https://msdn.microsoft.com/en-us/library/az24scfc(v=vs.110).aspx)? Well in that case you can simply hover your mouse cursor over the pair of quotes to the right of `contentVersion` and Code will help you out.
 
 ![Visual Studio Code displays help for completing the contentVersion property](images/vscodeContentVersionHelp.png)
 
-It repeats the warning we saw in the Problem panel but *also* it displays helpful information that it's found in the schema. In this case, it's telling us we need 4 numbers here, for example 1.0.0.0.
+It repeats the warning we saw in the Problem panel but *also* it displays helpful information that it's found in the schema. In this case, it's telling us we need 4 numbers here, for example 1.0.0.0. So let's follow that advice and complete this line.
+
+    {
+        "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+        "contentVersion": "1.0.0.0"
+    }
+
+Now the only thing we'll be missing is the `resources` section. As with `contentVersion` Code will help us to complete this. Add a comma to the end of the `contentVersion` line, press enter to start a new line, then type a quote. Once again, Code will pop up a list of possible properties, so this time choose `resources` from the list and hit enter. Code will add the resources line as well as a pair of square brackets `[]`. The `resources` section is an array, a list of all of the resources we're going to deploy. In JSON, the contents of an array are placed within square brackets.
+
+    {
+        "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+        "contentVersion": "1.0.0.0",
+        "resources": [
+            
+        ]
+    }
+
+It's entirely possible, and from my experience, highly desirable, to continue creating a template from scratch, simply using Code to prompt you as to what's needed to make a valid template. I personally found this a great way to learn how Azure Resource Manager templates work. To demonstrate, I'll start the process of adding a resource in the `resources` section. The other posts in this series will go into specific detail as to how different kinds of resource can be deployed.
+
+### Add a Resource to the Deployment Template
+
+As you can probably guess by now, we'll start by typing a quote in between the square brackets of the "resources" section to get some pointers as what our options are.
+
+    {
+        "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+        "contentVersion": "1.0.0.0",
+        "resources": [
+            ""
+        ]
+    }
+
+![Visual Studio Code warns us that it is expecting an object](images/vsCodeResourcesObjectExpected.png)
+
+Ah! Doing that didn't give us a list of options, it created a warning. But, the warning is helpful. It's telling us that it's not expecting a property at this point, it's expecting an object. In JSON, objects are placed within curly braces `{}` so let's delete the quotes we just typed and type an opening curly brace `{` instead.
+
+    {
+        "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+        "contentVersion": "1.0.0.0",
+        "resources": [
+            {}
+        ]
+    }
+
+![Visual Studio Code displays help for adding resources to a template](images/vsCodeResourcesMissingProperties.png)
+
+That's better! In the Problems panel we now see a list of properties that are expected when defining a resource. With the cursor between the two curly braces, press enter and type a quote.
+
+![Visual Studio Code displays a list of parameters for a resource](images/vsCodeResourcesProperties.png)
+
+From the information in the Problem pane, it appears that the `name`, `type` and `apiVersion` properties are mandatory, so we need to provide those. It makes sense that if we're going to deploy a resource, one of the first things we'd want to tell Azure is what type of resource we want to deploy. So, select `type` from that list and press enter.
+
+    {
+        "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+        "contentVersion": "1.0.0.0",
+        "resources": [
+            {
+                "type": ""
+            }
+        ]
+    }
+
+What resource types can we specify here? Place the cursor between the two quote marks and press CTRL + SPACE to see a list of options
+
+![Visual Studio Code displays a list of resource types](images/vsCodeResourceTypeOptions.png)
+
+In this example, we're going to being to deploy a virtual machine. We can either scroll through the list to find what we want, or we can type some text to start filtering.  Let's type `virtual` and see if we can find what we want.
+
+![Visual Studio Code displays a filtered list of resource types](images/vsCodeVirtualMachine.png)
+
+In this filtered list, we can see `Microsoft.Compute/virtualMachines". That's the one we need, so let's select it.
+
+The purpose of this post is to demonstrate how Visual Studio Code can be used to help with the creation and editing of Azure Resource Manager templates, so I won't go any further with the creation of this particular template. But from what you've read here, you should be able to see that Visual Studio Code is an extremely useful tool for working with templates.
