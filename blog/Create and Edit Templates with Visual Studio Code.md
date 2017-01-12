@@ -135,10 +135,18 @@ What resource types can we specify here? Place the cursor between the two quote 
 
 ![Visual Studio Code displays a list of resource types](images/vsCodeResourceTypeOptions.png)
 
-In this example, we're going to being to deploy a virtual machine. We can either scroll through the list to find what we want, or we can type some text to start filtering.  Let's type `virtual` and see if we can find what we want.
+In this example, we're going to begin to deploy a virtual machine. We can either scroll through the list to find what we want, or we can type some text to start filtering.  Let's type `virtual` and see if we can find what we want.
 
 ![Visual Studio Code displays a filtered list of resource types](images/vsCodeVirtualMachine.png)
 
-In this filtered list, we can see `Microsoft.Compute/virtualMachines". That's the one we need, so let's select it.
+In this filtered list, we can see `Microsoft.Compute/virtualMachines". That's the one we need, so let's select it. We can continue down this path, checking the Problems panel for messages and using Visual Studio Code's helpful hints to continue populating our template, but there are also some other ways in which Visual Studio Code simplifies template authoring.
+
+Link to the Getting Started Quickly doc and the sections on snippets and quickstart templates
+
+### Add a Resource to the Deployment Template Using Snippets
+
+**CHECK** Do you need to preinstall snippets as per https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-manager-vs-code
+
+### Using an Azure QuickStart Template
 
 The purpose of this post is to demonstrate how Visual Studio Code can be used to help with the creation and editing of Azure Resource Manager templates, so I won't go any further with the creation of this particular template. But from what you've read here, you should be able to see that Visual Studio Code is an extremely useful tool for working with templates.
