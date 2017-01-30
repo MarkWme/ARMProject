@@ -8,7 +8,7 @@ In this post, I will walk you through the creation of a simple template to deplo
 
 As described in *this* post, Visual Studio Code is my recommended tool for Azure Resource Manager deployment template creation. If you're new to Visual Studio Code, take a look at that post first as it will give you some useful hints on how Visual Studio Code can help simplify the template authoring process. 
 
-Of course, you're free to use any text editor you like. So, using your Visual Studio Code or your favourite text editor, create a new, empty file, name it whatever you like but make sure it ends with a `.json` extension.
+Of course, you're free to use any text editor you like. So, using Visual Studio Code or your favourite text editor, create a new empty file, name it whatever you like but make sure it ends with a `.json` extension.
 
 ### The Header
 
@@ -19,7 +19,7 @@ All Azure Resource Manager templates begin with the `$schema`, `contentVersion` 
         "contentVersion": "1.0.0.0"
     }
 
-Next, we add the `resources` section.
+Next, we add the `resources` section after `contentVersion`.
 
         ...
         "contentVersion": "1.0.0.0"
@@ -38,6 +38,36 @@ Our virtual machine is going to need an Azure Storage account in which to store 
 
 ## Dependencies
 
-We can create all of the resources that our virtual machine requires within our Azure Resource Manager (ARM) template, but clearly we now have a situation where we need to ensure that resources are created in a particular order. We can't store the virtual hard drive on storage that doesn't yet exist, neither can be attach a virtual network card to a network that isn't there.
+In order to complete deployments as quickly as possible, Azure Resource Manager will deploy resources in parallel, meaning that the creation of multiple resources is initiated at the same time so we're not waiting around for each individual resource to be created before we deploy the next. However, this can cause a problem if a resource being created requires another to already exist beforehand. In our virtual machine example, it needs storage and networking to exist before the virtual machine can be created.
 
-To resolve this, resource manager templates can define dependencies. This is done using the `dependsOn` property.
+Dependencies allow us to resolve this. This is achieved using the `dependsOn` property which we can use to let Azure Resource Manager know that we need another resource to exist before we can create *this* resource. Before commencing the deployment, the template file will be parsed to determine dependencies so that the correct deployment order can be established.
+
+For the virtual machine, we need to create the storage account and virtual networks, so we'll define those resources first in the template file. Later, we can add the definition of the virtual machine and reference the storage and network as dependencies, which will ensure that the storage and network get created before the virtual machine.
+
+## Create a Storage account
+
+In the resources section, add the section to create the storage account.
+
+    ...
+    "resources": [
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2016-01-01",
+            "sku":{
+                "name": "Standard_LRS"
+            },
+            "kind": "BlobStorage",
+            "location": "North Europe",
+            "name": "mtjw170130",
+            "properties": {
+                
+            }
+        },
+
+`type` specifies the type of resource we want to create which in this instance is `Microsoft.Storage/storageAccounts` as we want to create a Storage Account.
+
+`apiVersion` allows us to choose the version of the API we want to use. Most of the time you will want to use the latest, but there may be times when you want to use a specific version of the API, so you can select that here. Don't forget that you can use CTRL + SPACE to display a list of available options if you're not sure which API versions are available.
+
+`sku` and the `name` parameter contained within it is used to define the type of storage account we are creating. In this instance, we are using "Standrd_LRS", meaning "locally redundant storage". Again, the CTRL + SPACE shortcut can be used to see the available options.
+
+The second `name` parameter in this section specifies a unique name for the storage account. For storage accounts, only lower case alpha-numeric characters are allowed, no hypens, underscores or other characters are permitted.

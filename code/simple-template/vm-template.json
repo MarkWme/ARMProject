@@ -6,11 +6,8 @@
     "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "resources": [
-        //
-        // Virtual machines require a network and storage. So, first we create a storage account
-        // in which our virtual machines virtual hard drive (vhd) will reside.
-        //
         {
+            "comments": "Virtual machines require a network and storage. So, first we create a storage account in which our virtual machines virtual hard drive (vhd) will reside.",
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2015-06-15",
             "name": "mtjw161104",
